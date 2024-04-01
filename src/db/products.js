@@ -721,28 +721,28 @@ const products = [{
 export default products
 
 
-import axiosClient from '../api/axiosClient'; // Đảm bảo đường dẫn đúng
+// import axiosClient from '../api/axiosClient'; // Đảm bảo đường dẫn đúng
 
-// Gọi API GET
-axiosClient.get('/product')
-    .then(response => {
-        // Xử lý dữ liệu trả về
-        console.log(response.data);
-    })
-    .catch(error => {
-        // Xử lý lỗi
-        console.error('Error fetching data:', error);
-    });
+// // Gọi API GET
+// axiosClient.get('/product')
+//     .then(response => {
+//         // Xử lý dữ liệu trả về
+//         console.log(response.data);
+//     })
+//     .catch(error => {
+//         // Xử lý lỗi
+//         console.error('Error fetching data:', error);
+//     });
 
-// Gọi API POST
-axiosClient.post('/product', { data: 'data' })
-    .then(response => {
-        // Xử lý dữ liệu trả về
-        console.log(response.data);
-    })
-    .catch(error => {
-        // Xử lý lỗi
-        console.error('Error posting data:', error);
-    });
+// // Gọi API POST
+// axiosClient.post('/product', { data: 'data' })
+//     .then(response => {
+//         // Xử lý dữ liệu trả về
+//         console.log(response.data);
+//     })
+//     .catch(error => {
+//         // Xử lý lỗi
+//         console.error('Error posting data:', error);
+//     });
 
 // Và các phương thức khác như put(), delete() cũng tương tự
