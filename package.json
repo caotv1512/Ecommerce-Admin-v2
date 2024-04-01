@@ -46,7 +46,6 @@
         "react-select": "^5.7.0",
         "react-select-country-list": "^2.2.3",
         "react-toastify": "^9.1.1",
-        "react-truncate": "^3.0.0",
         "react-use": "^17.4.0",
         "react-use-measure": "^2.1.1",
         "react-visibility-sensor": "^5.1.1",

@@ -1,8 +1,4 @@
 // components
-import SubmenuTrigger from '@ui/SubmenuTrigger';
-import RatingStars from '@ui/RatingStars';
-import Timestamp from '@ui/Timestamp';
-import TruncatedText from '@components/TruncatedText';
 import Spring from '@components/Spring';
 import ModalBase from '@ui/ModalBase';
 
@@ -75,8 +71,8 @@ const Review = ({data = placeholder, index = 0}) => {
                         width >= 1280 &&
                         <div className="flex flex-1 gap-5 bg-input-bg border border-input-border h-20 rounded-md
                              max-w-[588px] p-4 overflow-hidden">
-                            <div className="flex-1 max-w-[513px]" ref={ref}>
-                                <TruncatedText className="flex-1" text={data.text} width={refWidth} />
+                            <div className="flex-1 max-w-[513px]" ref={ref} style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                                {data.text}
                             </div>
                             <button className="self-start icon text-[18px] mt-1"
                                     onClick={() => setModalOpen(true)}

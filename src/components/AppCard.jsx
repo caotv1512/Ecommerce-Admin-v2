@@ -1,7 +1,7 @@
 // components
 import Spring from '@components/Spring';
 import Switch from '@ui/Switch';
-import TruncatedText from '@components/TruncatedText';
+// import TruncatedText from '@components/TruncatedText'; // Không cần sử dụng nữa
 
 // hooks
 import useMeasure from 'react-use-measure';
@@ -18,14 +18,20 @@ const AppCard = ({app, index}) => {
                          justify-center items-center">
                         <img className="h-9 w-auto" src={app.img} alt={app.name}/>
                     </div>
-                    <h6 className="max-w-[165px] w-full leading-[1.4]" ref={titleRef}>
+                    {/* <h6 className="max-w-[165px] w-full leading-[1.4]" ref={titleRef}>
                         <TruncatedText text={app.name} width={titleWidth}/>
+                    </h6> */}
+                    <h6 className="max-w-[165px] w-full leading-[1.4]" ref={titleRef} style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                        {app.name}
                     </h6>
                 </div>
                 <Switch id={app.id} defaultChecked/>
             </div>
-            <p className="text-sm flex-1 max-w-[300px]" ref={descriptionRef}>
+            {/* <p className="text-sm flex-1 max-w-[300px]" ref={descriptionRef}>
                 <TruncatedText text={app.description} width={descriptionWidth}/>
+            </p> */}
+            <p className="text-sm flex-1 max-w-[300px]" ref={descriptionRef} style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                {app.description}
             </p>
             <button className="text-btn">View settings</button>
         </Spring>

@@ -1,6 +1,5 @@
 // components
 import Spring from '@components/Spring';
-import TruncatedText from '@components/TruncatedText';
 
 // hooks
 import useMeasure from 'react-use-measure';
@@ -38,8 +37,11 @@ const MessageItem = ({ message = placeholder, index }) => {
                     <i className="icon-circle-solid text-[4px]"/>
                     <span>at {dayjs(message.createdAt).format('h:mm A')}</span>
                 </p>
-                <div className="max-w-[210px] text-sm mt-1 mb-2" ref={ref}>
+                {/* <div className="max-w-[210px] text-sm mt-1 mb-2" ref={ref}>
                     <TruncatedText text={message.content} width={width} />
+                </div> */}
+                <div className="max-w-[210px] text-sm mt-1 mb-2" ref={ref} style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                    {message.content}
                 </div>
                 <div className="flex gap-2.5">
                     <button className="btn btn--outline size-xs green w-[70px]">
