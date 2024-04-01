@@ -10,6 +10,9 @@ import {useState, useEffect} from 'react';
 
 // utils
 import dayjs from 'dayjs';
+import Timestamp from '@ui/Timestamp';
+import RatingStars from '@ui/RatingStars';
+import SubmenuTrigger from '@ui/SubmenuTrigger';
 
 const placeholder = {
     firstName: 'John',
