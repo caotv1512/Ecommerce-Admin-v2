@@ -320,7 +320,7 @@ export const PRODUCTS_MANAGEMENT_COLUMN_DEFS = [
     width: 45,
     render: (images) => (
       <div className="img-wrapper w-[45px] h-[45px] flex items-center justify-center">
-        <img src={images[0].url} alt="product" />
+        <img src={images[0]?.url} alt="product" />
       </div>
     ),
   },
