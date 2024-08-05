@@ -3,10 +3,12 @@
     "version": "1.0.0",
     "private": true,
     "author": "merkulove <hello@merkulov.design> (https://1.envato.market/tf-merkulove)",
-    "contributors": [{
-        "name": "Lilit L.",
-        "email": "lilit@merkulov.design"
-    }],
+    "contributors": [
+        {
+            "name": "Lilit L.",
+            "email": "lilit@merkulov.design"
+        }
+    ],
     "copyright": "Merkulove ( https://merkulov.design/ ). All rights reserved.",
     "support": "help@merkulov.design",
     "license": "Envato License https://1.envato.market/KYbje",
@@ -22,10 +24,12 @@
         "@rollup/plugin-babel": "^6.0.3",
         "@vitejs/plugin-react": "^4.0.3",
         "antd": "^5.5.0",
+        "axios": "^1.7.3",
         "babel-plugin-styled-components": "^2.1.4",
         "classnames": "^2.3.2",
         "country-state-city": "^3.1.4",
         "dayjs": "^1.11.7",
+        "dotenv": "^16.4.5",
         "leaflet": "^1.9.4",
         "polished": "^4.2.2",
         "prop-types": "^15.8.1",
