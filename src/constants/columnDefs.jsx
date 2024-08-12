@@ -5,10 +5,24 @@ import Timestamp from "@ui/Timestamp";
 import { NavLink } from "react-router-dom";
 import Trend from "@ui/Trend";
 import Counter from "@components/Counter";
+import { message } from 'antd';
 
 // utils
 import { getCategory, getStatusColor, numFormatter } from "@utils/helpers";
 import dayjs from "dayjs";
+import DeleteIconTrigger from "@ui/DeleteIconTrigger";
+import { deleteProductApi } from "../api/productApis";
+
+const handleDeleteProduct = async (id) => {
+  try {
+    await deleteProductApi(id);
+    message.success('Xóa sản phẩm thành công!'); 
+  } catch (error) {
+    message.error('Lỗi không thể xóa sản phẩm');
+    console.error('Error deleting product:', error);
+  }
+};
+
 
 export const ORDERS_COLUMN_DEFS = [
   {
@@ -367,42 +381,6 @@ export const PRODUCTS_MANAGEMENT_COLUMN_DEFS = [
       <button className="text-accent capitalize">{category}</button>
     ),
   },
-  // {
-  //     title: 'Type',
-  //     dataIndex: 'type',
-  //     render: type => <span className="capitalize">{type}</span>,
-  //     responsive: ['lg'],
-  // },
-  // {
-  //     title: 'Statistics',
-  //     dataIndex: 'statistics',
-  //     render: statistics => <span className="capitalize">{statistics || '-'}</span>,
-  //     responsive: ['xl'],
-  // },
-  // {
-  //     title: 'Tags',
-  //     dataIndex: 'tags',
-  //     width: 125,
-  //     render: tags => <div className="flex flex-wrap gap-x-0.5">
-  //         {
-  //             tags && tags.length ? tags.map((tag, index) =>
-  //                 <button className="tag text-accent capitalize"
-  //                         key={tag}>{tag}{index !== tags.length - 1 && ','}</button>
-  //             ) : '-'
-  //         }
-  //     </div>,
-  //     responsive: ['xl'],
-  // },
-  // {
-  //     title: 'Rate',
-  //     dataIndex: 'rateCount',
-  //     render: rateCount =>
-  //         <div className="flex items-center gap-2">
-  //             <i className={`icon icon-star-${rateCount !== 0 ? 'solid' : 'regular'} text-lg leading-none`}/>
-  //             {rateCount !== 0 && <span className="mt-1">({rateCount})</span>}
-  //         </div>,
-  //     responsive: ['xl'],
-  // },
   {
     title: "Ngày tạo",
     dataIndex: "createdAt",
@@ -416,14 +394,14 @@ export const PRODUCTS_MANAGEMENT_COLUMN_DEFS = [
     responsive: ["lg"],
   },
   {
-    title: "Hành động",
-    dataIndex: "id",
+    title: 'Hành động',
+    dataIndex: 'id',
     render: (id) => (
       <div className="flex items-center justify-end gap-11">
         <NavLink to={`/product-editor/${id}`} aria-label="Edit">
           <i className="icon icon-pen-to-square-regular text-lg leading-none" />
         </NavLink>
-        <SubmenuTrigger />
+        <DeleteIconTrigger id={id} onDelete={handleDeleteProduct} />
       </div>
     ),
   },

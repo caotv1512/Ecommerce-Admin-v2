@@ -24,7 +24,7 @@ import {
 import classNames from "classnames";
 import dayjs from "dayjs";
 import { getProductByIdApi, updateProductByIdApi } from "../api/productApis";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getCategoryApi } from "../api/categoryApis";
 
 const ProductEditor = (id) => {
@@ -40,6 +40,7 @@ const ProductEditor = (id) => {
     stock: 0,
   });
   const [category, setCategory] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
   // lay thong tin category
   const getCategory = async () => {
     const result = await getCategoryApi();
@@ -60,7 +61,6 @@ const ProductEditor = (id) => {
 
   //   const categories = PRODUCT_CATEGORIES.filter(category => category.value !== 'all');
   const categories = category.filter((category) => category.value !== "all");
-  console.log(categories, "===========");
   const productDescription = `${product?.description}`;
   const defaultValues = {
     image1: "",
@@ -112,60 +112,43 @@ const ProductEditor = (id) => {
           <div>
             <span className="block field-label mb-2.5">Ảnh sản phẩm</span>
             <div className="grid grid-cols-2 gap-5 md:grid-cols-4 2xl:grid-cols-[repeat(5,minmax(0,1fr))]">
-              <Controller
-                name="image1"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <DropFiles
-                    wrapperClass="media-dropzone 2xl:col-span-2"
-                    onChange={(files) => field.onChange(files)}
-                  >
-                    <MediaDropPlaceholder />
-                  </DropFiles>
-                )}
-              />
-              <Controller
-                name="image2"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <DropFiles
-                    wrapperClass="media-dropzone 2xl:col-span-2"
-                    onChange={(files) => field.onChange(files)}
-                  >
-                    <MediaDropPlaceholder />
-                  </DropFiles>
-                )}
-              />
-              <div className="grid grid-cols-2 col-span-2 gap-5 2xl:col-span-1 2xl:grid-cols-1">
-                <Controller
-                  name="image3"
-                  control={control}
-                  defaultValue=""
-                  render={({ field }) => (
-                    <DropFiles
-                      wrapperClass="media-dropzone"
-                      onChange={(files) => field.onChange(files)}
-                    >
-                      <MediaDropPlaceholder />
-                    </DropFiles>
-                  )}
-                />
-                <Controller
-                  name="image4"
-                  control={control}
-                  defaultValue=""
-                  render={({ field }) => (
-                    <DropFiles
-                      wrapperClass="media-dropzone"
-                      onChange={(files) => field.onChange(files)}
-                    >
-                      <MediaDropPlaceholder />
-                    </DropFiles>
-                  )}
-                />
-              </div>
+              {product?.images?.map((image, index) => (
+                <React.Fragment key={image.id}>
+                  <Controller
+                    name="image1"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <DropFiles
+                        wrapperClass="media-dropzone 2xl:col-span-2"
+                        onChange={(files) => {
+                          field.onChange(files);
+                          if (files.length > 0) {
+                            console.log("file da chon cho anh co id: ", image.id, index);
+                            
+                            // const file = files[0];
+                            // const url = URL.createObjectURL(file);
+                            // setSelectedImage({ url });
+                            const images = [...product.images]
+                            images[index].url = URL.createObjectURL(files[0]);
+                            setProduct({
+                              ...product,
+                              images
+                            })
+                          }
+                        }}
+                      >
+                        {
+                          <img
+                            src={selectedImage ? selectedImage.url : image.url}
+                            alt="Selected"
+                          />
+                        }
+                      </DropFiles>
+                    )}
+                  />
+                </React.Fragment>
+              ))}
             </div>
           </div>
           <div className="flex flex-col gap-4">
