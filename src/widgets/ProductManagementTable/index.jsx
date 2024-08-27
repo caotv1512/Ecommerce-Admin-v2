@@ -40,14 +40,24 @@ const ProductManagementTable = () => {
   const [selectedAction, setSelectedAction] = useState(null);
   const [activeCollapse, setActiveCollapse] = useState("");
   const [products_management, setProducts_management] = useState([]);
+
   const getProduct = async () => {
-    const result = await getProductApi();
-    console.log(result);
-    setProducts_management(result.data);
+    try {
+      const result = await getProductApi();
+      setProducts_management(result.data);
+    } catch (error) {
+      console.error('Error fetching product data:', error);
+    }
   };
+
   useEffect(() => {
     getProduct();
   }, []);
+
+  const refreshProducts = () => {
+    getProduct(); // Gọi lại hàm để làm mới danh sách sản phẩm
+  };
+  
   const getQty = (category) => {
     if (category === "all") return products_management.length;
     return products_management.filter((product) => product.status === category)
@@ -164,7 +174,7 @@ const ProductManagementTable = () => {
       <div className="flex flex-1 flex-col gap-[22px]">
         {width >= 768 ? (
           <StyledTable
-            columns={PRODUCTS_MANAGEMENT_COLUMN_DEFS}
+            columns={PRODUCTS_MANAGEMENT_COLUMN_DEFS(refreshProducts)}
             dataSource={pagination.currentItems()}
             rowKey={(record) => record.sku}
             locale={{

@@ -13,16 +13,19 @@ import dayjs from "dayjs";
 import DeleteIconTrigger from "@ui/DeleteIconTrigger";
 import { deleteProductApi } from "../api/productApis";
 
-const handleDeleteProduct = async (id) => {
+
+const handleDeleteProduct = async (id,  refreshProducts) => {
   try {
     await deleteProductApi(id);
     message.success('Xóa sản phẩm thành công!'); 
+    
+    // Gọi lại hàm để lấy danh sách sản phẩm mới và cập nhật lại state
+    refreshProducts();
   } catch (error) {
     message.error('Lỗi không thể xóa sản phẩm');
     console.error('Error deleting product:', error);
   }
 };
-
 
 export const ORDERS_COLUMN_DEFS = [
   {
@@ -323,7 +326,7 @@ export const SELLERS_COLUMN_DEFS = [
   },
 ];
 
-export const PRODUCTS_MANAGEMENT_COLUMN_DEFS = [
+export const PRODUCTS_MANAGEMENT_COLUMN_DEFS = (refreshProducts)=> [
   {
     title: (
       <div className="flex items-center justify-center">
@@ -401,7 +404,7 @@ export const PRODUCTS_MANAGEMENT_COLUMN_DEFS = [
         <NavLink to={`/product-editor/${id}`} aria-label="Edit">
           <i className="icon icon-pen-to-square-regular text-lg leading-none" />
         </NavLink>
-        <DeleteIconTrigger id={id} onDelete={handleDeleteProduct} />
+        <DeleteIconTrigger id={id} onDelete={() => handleDeleteProduct(id, refreshProducts)}/>
       </div>
     ),
   },
