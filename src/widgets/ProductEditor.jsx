@@ -3,35 +3,17 @@ import Spring from "@components/Spring";
 import Select from "@ui/Select";
 import RangeDatePicker from "@ui/RangeDatePicker";
 import DropFiles from "@components/DropFiles";
-import PaymentMethod from "@ui/PaymentMethod";
 import { toast } from "react-toastify";
-import MediaDropPlaceholder from "@ui/MediaDropPlaceholder";
-
-// hooks
 import { useForm, Controller } from "react-hook-form";
-
-// constants
-import {
-  PRODUCT_CATEGORIES,
-  PAYMENT_OPTIONS,
-  PRODUCT_TYPE_OPTIONS,
-  PROMOTIONAL_OPTIONS,
-  STOCK_STATUS_OPTIONS,
-  UNITS_OPTIONS,
-} from "@constants/options";
-
-// utils
 import classNames from "classnames";
-import dayjs from "dayjs";
-import { getProductByIdApi, updateProductByIdApi } from "../api/productApis";
 import React, { useEffect, useState } from "react";
+import { getProductByIdApi, updateProductByIdApi } from "../api/productApis";
 import { getCategoryApi } from "../api/categoryApis";
 
-const ProductEditor = ({ id }) => {
+const ProductEditor = ({ id, type }) => {
   const [product, setProduct] = useState({});
   const [category, setCategory] = useState([]);
-  const [selectedFiles, setSelectedFiles] = useState([]); // Hoặc kiểu dữ liệu phù hợp
-
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [updateProduct, setUpdateProduct] = useState({
     image: [],
     description: "",
@@ -40,7 +22,7 @@ const ProductEditor = ({ id }) => {
     price: 10000,
     stock: 0,
   });
-
+  const [imageInputs, setImageInputs] = useState([""]);
   const {
     register,
     handleSubmit,
@@ -52,20 +34,24 @@ const ProductEditor = ({ id }) => {
   useEffect(() => {
     const fetchProductData = async () => {
       const productResult = await getProductByIdApi(id);
+      console.log(productResult);
+      
       setProduct(productResult.data);
       setUpdateProduct({
-        ...updateProduct,
         name: productResult.data.name,
         description: productResult.data.description,
         categoryId: productResult.data.category.id,
         price: productResult.data.price,
         stock: productResult.data.stock,
+        image: productResult.data.image || [], // Lưu các ảnh hiện có
       });
+      setSelectedFiles(productResult.data.images || []);
       setValue("productName", productResult.data.name);
       setValue("description", productResult.data.description);
       setValue("qty", productResult.data.stock);
       setValue("category", productResult.data.category.name);
     };
+console.log(selectedFiles, '========');
 
     const fetchCategoryData = async () => {
       const categoryResult = await getCategoryApi();
@@ -83,28 +69,21 @@ const ProductEditor = ({ id }) => {
     console.log("Thông tin đã được lưu!");
     console.log("Updated Product Information:", updateProduct);
 
-    // Tạo đối tượng FormData
     const formData = new FormData();
 
-    // Thêm thông tin sản phẩm vào FormData
     formData.append("name", updateProduct.name);
     formData.append("description", updateProduct.description);
     formData.append("price", updateProduct.price);
     formData.append("stock", updateProduct.stock);
     formData.append("categoryId", updateProduct.categoryId);
-    formData.append("images", selectedFiles); // Giả định rằng backend sẽ nhận file dưới tên 'images'
 
-    // Thêm các file hình ảnh vào FormData
-    selectedFiles.forEach((file, index) => {
-      formData.append(`images`, file); // 'images' là tên mà NestJS @UploadedFiles sẽ nhận
+    selectedFiles.forEach((file) => {
+      formData.append("images", file);
     });
-    // Log dữ liệu trước khi gửi
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ", " + pair[1]);
-    }
+
     const response = await updateProductByIdApi(id, formData, {
       headers: {
-        "Content-Type": "multipart/form-data", // Đảm bảo Content-Type là multipart/form-data
+        "Content-Type": "multipart/form-data",
       },
     });
 
@@ -115,16 +94,43 @@ const ProductEditor = ({ id }) => {
     }
   };
 
-  const handleFileChange = (event) => {
-    const files = event.target.files;
-    if (files) {
-      setSelectedFiles(Array.from(files)); // Chuyển đổi FileList thành mảng
+  const handleAddImageInput = () => {
+    if (imageInputs.length < 4) {
+      setImageInputs((prev) => [...prev, ""]); // Thêm một input mới vào mảng nếu chưa đạt 4 ảnh
     }
+  };
+
+  const handleImageChange = (index, file) => {
+    const updatedFiles = [...selectedFiles];
+    updatedFiles[index] = file; // Cập nhật file cho ô input tương ứng
+    setSelectedFiles(updatedFiles);
+
+    const updatedImages = [...updateProduct.image];
+    updatedImages[index] = file; // Cập nhật ảnh cho ô input tương ứng
+    setUpdateProduct((prev) => ({ ...prev, image: updatedImages }));
+  };
+
+  const handleFileChange = (event, index) => {
+    const file = event.target.files[0];
+    if (file) {
+      const newImageUrl = URL.createObjectURL(file);
+      handleImageChange(index, newImageUrl);
+    }
+  };
+
+  const handleRemoveImageInput = (index) => {
+    setImageInputs((prev) => prev.filter((_, i) => i !== index)); // Xóa input tương ứng
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index)); // Xóa file tương ứng
+    const updatedImages = [...updateProduct.image];
+    updatedImages[index] = ""; // Đặt ảnh tương ứng về trống
+    setUpdateProduct((prev) => ({ ...prev, image: updatedImages }));
   };
 
   return (
     <Spring className="card flex-1 xl:py-10">
-      <h5 className="mb-[15px]">Chỉnh sửa sản phẩm</h5>
+      <h5 className="mb-[15px]">
+        {type === "create" ? "Tạo sản phẩm mới" : "Chỉnh sửa sản phẩm"}
+      </h5>
       <form
         className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,550px)] xl:gap-10"
         onSubmit={handleSaveUpdate}
@@ -133,50 +139,45 @@ const ProductEditor = ({ id }) => {
           <div>
             <span className="block field-label mb-2.5">Ảnh sản phẩm</span>
             <div className="grid grid-cols-2 gap-5 md:grid-cols-4 2xl:grid-cols-[repeat(5,minmax(0,1fr))]">
-              {product?.images?.map((image, index) => (
-                <React.Fragment key={image.id}>
-                  <Controller
-                    name={`image${index + 1}`} // Sử dụng tên động cho từng ảnh
-                    control={control}
-                    defaultValue=""
-                    render={({ field }) => (
-                      <DropFiles
-                        wrapperClass="media-dropzone 2xl:col-span-2"
-                        onChange={(files) => {
-                          field.onChange(files);
-                          if (files.length > 0) {
-                            console.log(
-                              "file đã chọn cho ảnh có id: ",
-                              image.id,
-                              index
-                            );
-
-                            // Cập nhật sản phẩm với ảnh mới
-                            const images = [...product.images];
-                            images[index].url = URL.createObjectURL(files[0]); // Cập nhật URL ảnh mới
-                            setProduct({ ...product, images });
-
-                            // Cập nhật trạng thái updateProduct với ảnh mới
-                            setUpdateProduct((prev) => ({
-                              ...prev,
-                              image: images, // Cập nhật ảnh vào updateProduct
-                            }));
-
-                            // Cập nhật selectedFiles
-                            setSelectedFiles((prevFiles) => [
-                              ...prevFiles,
-                              files[0],
-                            ]); // Thêm ảnh mới vào selectedFiles
-                          }
-                        }}
-                      >
-                        <img src={image.url} alt="Selected" />
-                      </DropFiles>
-                    )}
+              {imageInputs.map((_, index) => (
+                <div key={index} className="relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, index)}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
                   />
-                </React.Fragment>
+                  <div className="bg-gray-200 h-40 w-40 flex items-center justify-center border-2 border-dashed border-gray-400 relative">
+                    {selectedFiles[index] ? (
+                      <img
+                        src={selectedFiles[index].url}
+                        alt="Selected"
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <span className="text-gray-500">Chọn ảnh</span>
+                    )}
+                    {selectedFiles[index] && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImageInput(index)}
+                        className="absolute top-1 right-1 text-red-600"
+                      >
+                        &times;
+                      </button>
+                    )}
+                  </div>
+                </div>
               ))}
             </div>
+            <button
+              type="button"
+              onClick={handleAddImageInput}
+              className="btn btn--secondary mt-2"
+              disabled={imageInputs.length >= 4}
+            >
+              Thêm ảnh
+            </button>
           </div>
           <div className="flex flex-col gap-4">
             <div className="field-wrapper">
@@ -186,7 +187,9 @@ const ProductEditor = ({ id }) => {
               <textarea
                 className={classNames(
                   `field-input !h-[160px] !py-[15px] !overflow-y-auto`,
-                  { "field-input--error": errors.description }
+                  {
+                    "field-input--error": errors.description,
+                  }
                 )}
                 id="description"
                 {...register("description", { required: true })}
@@ -247,20 +250,38 @@ const ProductEditor = ({ id }) => {
             </div>
           </div>
           <div className="grid grid-cols-1 gap-y-4 gap-x-2 sm:grid-cols-2">
-            <div className="field-wrapper">
-              <label className="field-label" htmlFor="regularPrice">
-                Giá chính thức
+          <div className="field-wrapper">
+              <label className="field-label" htmlFor="qty">
+                Số lượng
               </label>
               <input
+                type="number"
                 className={classNames("field-input", {
-                  "field-input--error": errors.regularPrice,
+                  "field-input--error": errors.qty,
                 })}
-                id="regularPrice"
-                placeholder="$99.99"
-                {...register("regularPrice", {
-                  required: true,
-                  pattern: /^[0-9]*$/,
+                id="qty"
+                placeholder="Nhập số lượng"
+                {...register("qty", { required: true })}
+                onChange={(e) => {
+                  setUpdateProduct({
+                    ...updateProduct,
+                    stock: e.target.value,
+                  });
+                }}
+              />
+            </div>
+            <div className="field-wrapper">
+              <label className="field-label" htmlFor="price">
+                Giá sản phẩm
+              </label>
+              <input
+                type="number"
+                className={classNames("field-input", {
+                  "field-input--error": errors.price,
                 })}
+                id="price"
+                placeholder="Nhập giá"
+                {...register("price", { required: true })}
                 onChange={(e) => {
                   setUpdateProduct({
                     ...updateProduct,
@@ -269,103 +290,13 @@ const ProductEditor = ({ id }) => {
                 }}
               />
             </div>
-            <div className="field-wrapper">
-              <label className="field-label" htmlFor="salePrice">
-                Giảm giá
-              </label>
-              <input
-                className={classNames("field-input", {
-                  "field-input--error": errors.salePrice,
-                })}
-                id="salePrice"
-                placeholder="$99.99"
-                {...register("salePrice", {
-                  required: true,
-                  pattern: /^[0-9]*$/,
-                })}
-              />
-            </div>
           </div>
-          <div className="grid grid-cols-1 gap-y-4 gap-x-2 sm:grid-cols-2">
-            <div className="field-wrapper">
-              <label className="field-label" htmlFor="productSchedule">
-                Thời gian bán
-              </label>
-              <Controller
-                name="productSchedule"
-                control={control}
-                render={({ field }) => (
-                  <RangeDatePicker
-                    id="productSchedule"
-                    innerRef={field.ref}
-                    disableFuture={false}
-                    value={field.value}
-                    onChange={(value) => field.onChange(value)}
-                  />
-                )}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 gap-y-4 gap-x-2 sm:grid-cols-2">
-            <div className="grid grid-cols-1 gap-y-4 gap-x-2 sm:grid-cols-[minmax(0,1fr)_,minmax(0,112px)]">
-              <div className="field-wrapper">
-                <label className="field-label" htmlFor="qty">
-                  Số lượng
-                </label>
-                <input
-                  className={classNames("field-input", {
-                    "field-input--error": errors.qty,
-                  })}
-                  id="qty"
-                  placeholder="0"
-                  {...register("qty", {
-                    required: "This field is required",
-                    pattern: {
-                      value: /^[0-9]+$/,
-                      message: "Only numeric values are allowed",
-                    },
-                  })}
-                  onChange={(e) => {
-                    setUpdateProduct({
-                      ...updateProduct,
-                      stock: e.target.value,
-                    });
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-          {/* <div className="field-wrapper">
-            <span className="field-label">Payment Methods</span>
-            <div className="flex flex-wrap gap-5">
-              {PAYMENT_OPTIONS.map((option, index) => (
-                <PaymentMethod key={index} id={option.value} option={option} />
-              ))}
-              <button
-                className="img-wrapper !bg-transparent hover:opacity-70 flex items-center justify-center w-10 h-10 rounded-full"
-                onClick={() => console.log("Add new payment method")}
-              >
-                <img
-                  className="w-full h-full object-cover"
-                  src="/icons/plus.svg"
-                  alt="Add payment method"
-                />
-              </button>
-            </div>
-          </div> */}
-          <div className="field-wrapper">
-            <div className="flex flex-wrap gap-2">
-              <div className="grid gap-2 mt-5 sm:grid-cols-2 sm:mt-10 md:mt-11">
-                <button
-                  type="button"
-                  className="btn btn--secondary"
-                  onClick={handleSaveUpdate} // Gọi hàm cập nhật khi nhấn nút
-                >
-                  Lưu thông tin
-                </button>
-              </div>
-            </div>
-          </div>
+          <button
+            type="submit"
+            className="btn btn--primary"
+          >
+            {type === "create" ? "Tạo sản phẩm" : "Cập nhật sản phẩm"}
+          </button>
         </div>
       </form>
     </Spring>
@@ -373,3 +304,4 @@ const ProductEditor = ({ id }) => {
 };
 
 export default ProductEditor;
+
