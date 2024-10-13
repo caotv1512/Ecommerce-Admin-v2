@@ -8,7 +8,7 @@ const EditProduct = () => {
   return (
     <>
       <PageHeader title="Product Editor" />
-      <ProductEditor id={id} />
+      <ProductEditor id={id} type="edit" />
     </>
   );
 };

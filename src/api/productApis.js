@@ -5,8 +5,13 @@ export const getProductApi = async () => {
 };
 
 export const getProductByIdApi = async (id) => {
+
   return await axiosClient.get(`/product/${id}`);
 };
+
+export const createProductApi = async  (data, header)=>{
+  return await axiosClient.post( `/product`, data)
+}
 
 export const updateProductByIdApi = async (id, updateProduct, config) => {
   console.log("first", id, updateProduct);
