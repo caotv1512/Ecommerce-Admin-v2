@@ -102,43 +102,30 @@ const ProductEditor = ({ id, type }) => {
         });
     
         // Chờ cho tất cả các file được tải lên
-        const result = await Promise.all(uploadPromises); // Đợi cho tất cả các upload hoàn tất
-    
-        console.log("Tất cả file đã được tải lên", result);
+        await Promise.all(uploadPromises); // Đợi cho tất cả các upload hoàn tất
         
-        const response = await createProduct({
-            ...updateProduct,
-            image: [...imageLinks]
-        });
-
-        if (response) {
-            toast.success("Cập nhật sản phẩm thành công!");
-        } else {
+        try {
+            const response = await createProduct({
+                ...updateProduct,
+                image: [...imageLinks]
+            });
+    
+            if (response) {
+                toast.success("Cập nhật sản phẩm thành công!");
+            } else {
+                toast.error("Có lỗi xảy ra khi cập nhật sản phẩm.");
+            }
+        } catch (error) {
+            console.log(error)
             toast.error("Có lỗi xảy ra khi cập nhật sản phẩm.");
         }
-        // return imageLinks; 
+        // return imageLinks;
     };
     
 
     const handleSaveUpdate = async (event) => {
         event.preventDefault();
-
         await handleUpload(imageInputs);
-
-        // console.log({
-        //          ...updateProduct,
-        //     image: [...links]
-        // })
-        // const response = await createProduct({
-        //     ...updateProduct,
-        //     image: [...links]
-        // });
-
-        // if (response) {
-        //     toast.success("Cập nhật sản phẩm thành công!");
-        // } else {
-        //     toast.error("Có lỗi xảy ra khi cập nhật sản phẩm.");
-        // }
     };
 
     const handleAddImageInput = () => {
