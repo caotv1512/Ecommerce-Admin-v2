@@ -8,6 +8,15 @@ export const getProductByIdApi = async (id) => {
   return await axiosClient.get(`/product/${id}`);
 };
 
+export const createProduct = async (data) => {
+  try {
+    return await axiosClient.post(`/product`, data);
+  } catch (error) {
+    console.error("Error updating product:", error);
+    return null;
+  }
+};
+
 export const updateProductByIdApi = async (id, updateProduct, config) => {
   console.log("first", id, updateProduct);
   try {
